@@ -28,7 +28,7 @@ class BullCowGame {
     var wordLength: Int { return self.word.characters.count }
     var maxTries: Int
     var isGameWon: Bool = false
-    var canTryAgain: Bool { return self.currentTry <= self.maxTries }
+    var canTryAgain: Bool { return self.currentTry < self.maxTries }
 
     private var word: String
     private var currentTry = 0
@@ -54,13 +54,13 @@ class BullCowGame {
         let success = guess == self.word
         self.isGameWon = success
         
-        let stats = GuessStats(bulls: 0, cows: 0)
+        let stats = BullCowGame.getStats(guess: guess, word: self.word)
 
         return (success: success, stats: stats)
     }
 
     private func printIntro() {
-        print("Zgadnij wyraz na \(self.wordLength) liter")
+        print("Zgadnij wyraz na \(self.wordLength) liter (\(self.word))")
     }
 
     private func printCorrectGuess() {
@@ -69,6 +69,32 @@ class BullCowGame {
 
     private func printWrongGuess() {
         print("Sprobuj jeszcze raz!")
+    }
+}
+
+extension BullCowGame {
+    
+    static func getStats(guess: String, word: String) -> GuessStats {
+        guard guess.characters.count == word.characters.count
+            else { return GuessStats(bulls: 0, cows: 0) }
+
+        var bulls = 0
+        var cows = 0
+
+        for i in 0..<guess.characters.count {
+            let gIndex = guess.index(guess.startIndex, offsetBy: i)
+            let wIndex = word.index(word.startIndex, offsetBy: i)
+            let gChar = guess.characters[gIndex]
+            let wChar = word.characters[wIndex]
+
+            if gChar == wChar {
+                bulls += 1
+            } else if word.characters.contains(gChar) {
+                cows += 1
+            }
+        }
+
+        return GuessStats(bulls: bulls, cows: cows)
     }
 }
 
