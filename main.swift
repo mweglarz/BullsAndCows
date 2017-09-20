@@ -1,45 +1,42 @@
 
 import Foundation
 
-enum AnswerState {
-  case invalidInput
-  case invalidLength
-  case notLowercase
-  case notIsogram
-  case invalidGuess
-  case correctGuess
+
+func askToPlayAgain() -> Bool {
+    print("Play again? y/n")
+    guard let answer = readLine() else { return false }
+    return answer == "y" || answer == "Y"
 }
 
-func validateAnswer(userAnswer: String?, isogram: String) -> AnswerState {
-  return userAnswer ?? "" == isogram ? .correctGuess : .invalidGuess
+func printResult(result: BullCowGame.GameResult) {
+    if result.success {
+        print("Brawo! Zgadles!")
+    } else {
+        print("Sprobuj jeszcze raz, bulls: \(result.stats.bulls), cows: \(result.stats.cows)")
+    }
 }
 
-func printCorrectGuess() {
-  print("Haslo poprawne!")
+func playGame() {
+    let bullCowGame = BullCowGame(word: "tesla", maxTries: 2)
+    
+    while !bullCowGame.isGameWon && bullCowGame.canTryAgain {
+        let state = bullCowGame.getAndValidateUserInput()
+        guard case let InputState.correct(guess) = state else { continue }
+        let result = bullCowGame.submitUserGuess(guess: guess)
+        printResult(result: result)
+    }
 }
 
-func printWrongGuess() {
-  print("Sprobuj jeszcze raz!")
-}
+func main() {
 
-let isogram = "tesla"
+    while true {
+        playGame()
+        if !askToPlayAgain() { break }
+    }
+}  
 
-mainLoop: while true {
+main()
 
-  print("Zgadnij haslo")
-  
-  let userGuess = readLine() ?? ""
-  print("haslo = \(isogram), twoj typ = \(userGuess)")
 
-  let answerState = validateAnswer(userAnswer: userGuess, isogram: isogram)
-
-  switch answerState {
-    case .correctGuess:
-      printCorrectGuess()
-      break mainLoop
-    default:
-      printWrongGuess()
-  }
-}
 
 
